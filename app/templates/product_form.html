@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}{{'ویرایش محصول' if product else 'افزودن محصول'}} | {{site_name}}{% endblock %}
+{% block content %}
+<div class="section-head admin-products-head">
+  <div><span class="eyebrow">کاتالوگ فروشگاه</span><h1>{{'ویرایش محصول' if product else 'افزودن محصول'}}</h1><p class="muted">اطلاعات محصول، تصاویر، قیمت و موجودی را مدیریت کنید.</p></div>
+  <a class="outline" href="{{url_for('main.admin_products')}}">بازگشت به محصولات</a>
+</div>
+<form id="product-form" class="card form-card professional-product-form" method="post" enctype="multipart/form-data">
+  <input type="hidden" name="_csrf" value="{{csrf_token()}}">
+  <input type="hidden" name="main_upload_index" id="main-upload-index" value="0">
+
+  <div class="form-section-title"><span>۱</span><div><b>اطلاعات محصول</b><small>نام و مشخصات اصلی محصول</small></div></div>
+  <div class="form-grid">
+    <label class="field"><span>نام محصول <em>اجباری</em></span><input name="name" value="{{product.name if product else ''}}" required placeholder="مثلاً گوشی سامسونگ A55"></label>
+    <label class="field"><span>Slug</span><input name="slug" value="{{product.slug if product else ''}}" placeholder="product-slug"></label>
+    <label class="field"><span>قیمت فعلی <em>تومان</em></span><input name="price" type="number" min="0" value="{{product.price if product else 0}}" required></label>
+    <label class="field"><span>قیمت قبل از تخفیف <em>تومان</em></span><input name="compare_price" type="number" min="0" value="{{product.compare_price if product else 0}}"></label>
+    <label class="field"><span>موجودی</span><input name="stock" type="number" min="0" value="{{product.stock if product else 0}}"></label>
+    <label class="field"><span>SKU</span><input name="sku" value="{{product.sku if product else ''}}" placeholder="کد کالا"></label>
+    <label class="field"><span>دسته‌بندی</span><select name="category_id"><option value="">بدون دسته</option>{% for c in categories %}<option value="{{c.id}}" {% if product and product.category_id==c.id %}selected{% endif %}>{{c.name}}</option>{% endfor %}</select></label>
+    <label class="field"><span>برند</span><select name="brand_id"><option value="">بدون برند</option>{% for b in brands %}<option value="{{b.id}}" {% if product and product.brand_id==b.id %}selected{% endif %}>{{b.name}}</option>{% endfor %}</select></label>
+  </div>
+
+  <div class="form-section-title product-section-space"><span>۲</span><div><b>تصاویر محصول</b><small>چند تصویر با هر اندازه‌ای انتخاب کنید؛ نمایش تصاویر به‌صورت خودکار در قالب فروشگاه تنظیم می‌شود.</small></div></div>
+  <div class="product-image-uploader">
+    <label class="product-upload-zone" for="product-images">
+      <input id="product-images" name="images" type="file" accept="image/jpeg,image/png,image/webp,image/gif" multiple>
+      <span class="upload-plus">＋</span>
+      <strong>انتخاب چند تصویر محصول</strong>
+      <small>می‌توانید چند عکس را هم‌زمان انتخاب کنید.</small>
+    </label>
+    <div id="new-image-preview" class="image-preview-grid" aria-live="polite"></div>
+  </div>
+
+  {% if product_images %}
+  <div class="existing-images-box">
+    <div class="existing-images-head"><b>تصاویر فعلی</b><small>برای تغییر تصویر اصلی، روی «اصلی» بزنید.</small></div>
+    <div class="image-preview-grid existing-images-grid">
+      {% for im in product_images %}
+      <div class="product-image-item {% if product and product.image==im.filename %}is-main{% endif %}">
+        <img src="{{url_for('main.image',filename=im.filename)}}" alt="{{product.name}}">
+        <div class="image-item-actions">
+          <label class="main-image-choice"><input type="radio" name="main_image_id" value="{{im.id}}" {% if product and product.image==im.filename %}checked{% endif %}> <span>اصلی</span></label>
+          <button type="submit" class="image-delete-btn" formaction="{{url_for('main.product_image_delete',product_id=product.id,image_id=im.id)}}" formmethod="post" formnovalidate onclick="return confirm('این تصویر حذف شود؟')">حذف</button>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {% if product and product.image %}<div class="main-image-note">تصویر اصلی فعلی: <b>{{product.image}}</b></div>{% endif %}
+
+  <div class="form-section-title product-section-space"><span>۳</span><div><b>توضیحات و ویژگی‌ها</b><small>اطلاعاتی که در صفحه محصول نمایش داده می‌شود.</small></div></div>
+  <label class="field"><span>توضیحات محصول</span><textarea name="description" placeholder="توضیحات کامل محصول را وارد کنید...">{{product.description if product else ''}}</textarea></label>
+  <label class="field"><span>ویژگی‌ها به صورت JSON</span><textarea name="attributes" placeholder='{"رنگ":"مشکی","حافظه":"256GB"}'>{{product.attributes if product else '{}'}}</textarea></label>
+  <label class="toggle-row product-active-toggle"><input type="checkbox" name="is_active" {% if not product or product.is_active %}checked{% endif %}><span><b>محصول فعال و قابل فروش باشد</b><small>اگر غیرفعال باشد در فروشگاه نمایش داده نمی‌شود.</small></span><i></i></label>
+  <div class="product-form-actions"><a class="outline" href="{{url_for('main.admin_products')}}">انصراف</a><button class="btn admin-save-product" type="submit">ذخیره محصول و تصاویر</button></div>
+</form>
+<script>
+(function(){
+  const input=document.getElementById('product-images');
+  const preview=document.getElementById('new-image-preview');
+  const mainIndex=document.getElementById('main-upload-index');
+  if(!input||!preview)return;
+  input.addEventListener('change',function(){
+    preview.innerHTML='';
+    Array.from(input.files||[]).forEach((file,index)=>{
+      const card=document.createElement('div'); card.className='product-image-item new-image-item'+(index===0?' is-main':'');
+      const img=document.createElement('img'); img.alt=file.name;
+      const url=URL.createObjectURL(file); img.src=url; img.onload=()=>URL.revokeObjectURL(url);
+      const actions=document.createElement('div'); actions.className='image-item-actions';
+      const label=document.createElement('label'); label.className='main-image-choice';
+      const radio=document.createElement('input'); radio.type='radio'; radio.name='preview-main'; radio.checked=index===0;
+      radio.addEventListener('change',()=>{mainIndex.value=index;document.querySelectorAll('.new-image-item').forEach(x=>x.classList.remove('is-main'));card.classList.add('is-main');});
+      label.append(radio,document.createTextNode(' اصلی'));
+      actions.append(label);
+      card.append(img,actions); preview.append(card);
+    });
+    mainIndex.value='0';
+  });
+})();
+</script>
+{% endblock %}

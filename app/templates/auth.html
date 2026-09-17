@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}ورود و ثبت‌نام | {{site_name}}{% endblock %}
+{% block content %}
+<section class="auth-shell professional-auth">
+  <div class="auth-brand">
+    <div class="auth-logo">{{(site_name or 'ن')[:1]}}</div>
+    <span class="auth-kicker">فروشگاه آنلاین {{site_name}}</span>
+    <h1>حساب شما، ساده و امن.</h1>
+    <p>برای مدیریت سفارش‌ها، علاقه‌مندی‌ها و پشتیبانی، وارد حساب خود شوید یا در چند ثانیه حساب جدید بسازید.</p>
+    <div class="auth-benefits"><div><b>01</b><span>ثبت سفارش سریع</span></div><div><b>02</b><span>پیگیری سفارش‌ها</span></div><div><b>03</b><span>پشتیبانی مستقیم</span></div></div>
+  </div>
+  <div class="auth-card card">
+    <div class="auth-card-head"><div><span class="eyebrow">حساب کاربری</span><h2 id="auth-heading">ورود به حساب</h2><p id="auth-description">شماره موبایل، نام کاربری یا ایمیل خود را وارد کنید.</p></div><div class="auth-shield">✓</div></div>
+    <div class="auth-tabs" role="tablist"><button type="button" class="auth-tab active" data-mode="login">ورود</button><button type="button" class="auth-tab" data-mode="register">ساخت حساب</button></div>
+    {% if otp_pending %}
+    <div class="otp-panel card" style="margin-bottom:18px;padding:18px;border:1px solid #ececf2;background:#fafafd">
+      <div class="eyebrow">تأیید شماره موبایل</div>
+      <h3 style="margin:6px 0 8px">کد ۶ رقمی را وارد کنید</h3>
+      <p class="muted small">کدی که از طریق پیامک برای شماره شما ارسال شد، تا ۵ دقیقه معتبر است.</p>
+      <form method="post" action="{{url_for('main.verify_register_otp')}}">
+        <input type="hidden" name="_csrf" value="{{csrf_token()}}">
+        <label class="field"><span>کد تأیید</span><input name="otp" inputmode="numeric" autocomplete="one-time-code" maxlength="6" minlength="6" pattern="[0-9۰-۹]{6}" required placeholder="••••••"></label>
+        <button class="btn auth-submit" type="submit">تأیید و تکمیل ثبت‌نام</button>
+      </form>
+      <form method="post" action="{{url_for('main.resend_register_otp')}}" style="margin-top:10px">
+        <input type="hidden" name="_csrf" value="{{csrf_token()}}">
+        <button class="outline" type="submit">ارسال مجدد کد</button>
+      </form>
+    </div>
+    {% else %}
+    <form id="auth-form" method="post" novalidate>
+      <input type="hidden" name="_csrf" value="{{csrf_token()}}"><input type="hidden" name="mode" id="auth-mode" value="login">
+      <label class="field"><span>نام کاربری <em>برای مشتریان</em></span><div class="input-icon-wrap"><span>◎</span><input name="username" autocomplete="username" placeholder="مثلاً asra"></div></label>
+      <div class="register-fields" hidden>
+        <label class="field"><span>نام و نام خانوادگی</span><div class="input-icon-wrap"><span>◯</span><input name="full_name" autocomplete="name" placeholder="مثلاً علی رضایی"></div></label>
+        <label class="field"><span>شماره موبایل</span><div class="input-icon-wrap"><span>◉</span><input name="phone" inputmode="tel" autocomplete="tel" placeholder="۰۹۰۵۵۰۱۸۳۱۵" minlength="11"></div></label>
+        <label class="field"><span>ایمیل <em>اختیاری</em></span><div class="input-icon-wrap"><span>@</span><input type="email" name="email" autocomplete="email" placeholder="example@mail.com"></div></label>
+      </div>
+      <label class="field"><span>رمز عبور</span><div class="password-wrap input-icon-wrap"><span>⌑</span><input id="auth-password" name="password" type="password" required minlength="6" autocomplete="current-password" placeholder="حداقل ۶ کاراکتر"><button type="button" class="password-toggle" aria-label="نمایش رمز">نمایش</button></div></label>
+      <div class="register-fields" hidden>
+        <label class="consent"><input type="checkbox" name="terms" value="1"><span><b>قوانین و مقررات</b> را مطالعه کرده‌ام و می‌پذیرم.</span></label>
+        <label class="consent"><input type="checkbox" name="privacy" value="1"><span>با <b>حریم خصوصی</b> و نحوه استفاده از اطلاعات موافقم.</span></label>
+      </div>
+      <button class="btn auth-submit" type="submit">ورود به حساب</button>
+    </form>
+    {% endif %}
+    <div class="auth-security"><span><svg><use href="#i-shield"/></svg> اطلاعات شما محافظت می‌شود</span><span>ورود امن و سریع</span></div>
+  </div>
+</section>
+<script>
+const tabs=document.querySelectorAll('.auth-tab'),mode=document.getElementById('auth-mode'),only=document.querySelectorAll('.register-fields'),submit=document.querySelector('.auth-submit'),heading=document.getElementById('auth-heading'),desc=document.getElementById('auth-description');
+tabs.forEach(t=>t.addEventListener('click',()=>{tabs.forEach(x=>x.classList.remove('active'));t.classList.add('active');const m=t.dataset.mode;mode.value=m;only.forEach(x=>x.hidden=m!=='register');submit.textContent=m==='register'?'ساخت حساب کاربری':'ورود به حساب';heading.textContent=m==='register'?'ساخت حساب جدید':'ورود به حساب';desc.textContent=m==='register'?'اطلاعات خود را وارد کنید و حساب امن خود را بسازید.':'شماره موبایل، نام کاربری یا ایمیل خود را وارد کنید.';document.querySelector('[name="password"]').setAttribute('autocomplete',m==='register'?'new-password':'current-password');}));
+document.querySelector('.password-toggle').addEventListener('click',function(){const p=document.getElementById('auth-password');const show=p.type==='password';p.type=show?'text':'password';this.textContent=show?'پنهان':'نمایش'});
+</script>
+{% endblock %}

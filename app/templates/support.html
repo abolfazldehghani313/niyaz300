@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}پشتیبانی | {{site_name}}{% endblock %}
+{% block content %}
+<section class="support-hero professional-support-hero card"><div class="support-hero-icon"><svg class="svg-icon"><use href="#i-headset"/></svg></div><div><span class="eyebrow">مرکز ارتباط با مشتری</span><h1>پشتیبانی {{site_name}}</h1><p>مشکل یا سؤالی دارید؟ درخواست خود را ثبت کنید؛ تیم پشتیبانی از همین‌جا پاسخ می‌دهد.</p></div><div class="support-online"><i></i> آنلاین</div></section>
+<div class="support-layout professional-support-layout">
+<section class="card ticket-create-card">
+  <div class="section-head"><div><span class="eyebrow">درخواست جدید</span><h2>ارسال تیکت پشتیبانی</h2><p class="muted">موضوع را دقیق بنویسید تا سریع‌تر راهنمایی شوید.</p></div><span class="step-badge">مرحله ۱</span></div>
+  <form method="post" class="ticket-form professional-form"><input type="hidden" name="_csrf" value="{{csrf_token()}}">
+    <label class="field"><span>موضوع درخواست</span><input name="subject" maxlength="180" required placeholder="مثلاً مشکل در ثبت سفارش"></label>
+    <label class="field"><span>شرح کامل مشکل</span><textarea name="message" maxlength="5000" required placeholder="لطفاً جزئیات مشکل، زمان وقوع و هر اطلاعات مفیدی را بنویسید..."></textarea><small class="field-hint">اطلاعات شخصی و رمز عبور خود را در تیکت ارسال نکنید.</small></label>
+    <div class="ticket-form-footer"><span>پاسخ معمولاً در اولین فرصت ثبت می‌شود.</span><button class="btn ticket-submit" type="submit">ارسال درخواست <b>←</b></button></div>
+  </form>
+</section>
+<section class="card my-tickets-card">
+  <div class="section-head"><div><span class="eyebrow">سوابق</span><h2>تیکت‌های من</h2></div><span class="count-pill">{{tickets|length}} مورد</span></div>
+  {% if tickets %}<div class="ticket-list">{% for t in tickets %}<a class="ticket-item professional-ticket-item" href="{{url_for('main.support_ticket',ticket_id=t.id)}}"><span class="ticket-icon">#{{t.id}}</span><div><strong>{{t.subject}}</strong><small>آخرین بروزرسانی · {{t.updated_at.strftime('%Y/%m/%d %H:%M')}}</small></div><span class="ticket-status {{t.status}}">{% if t.status=='answered' %}پاسخ داده شد{% elif t.status=='closed' %}بسته{% else %}باز{% endif %}</span><b class="ticket-arrow">‹</b></a>{% endfor %}</div>{% else %}<div class="empty professional-empty"><div>🎧</div><b>هنوز تیکتی ندارید</b><span>اگر به کمک نیاز دارید، اولین درخواست خود را ثبت کنید.</span></div>{% endif %}
+</section>
+</div>
+<div class="contact-cards support-contact professional-contact"><a href="tel:{{support_phone}}"><span class="contact-icon">☎</span><span><small>پشتیبانی تلفنی</small><strong>{{support_phone}}</strong></span><b>←</b></a><a href="mailto:{{support_email}}"><span class="contact-icon">✉</span><span><small>پشتیبانی ایمیلی</small><strong>{{support_email}}</strong></span><b>←</b></a></div>
+{% endblock %}

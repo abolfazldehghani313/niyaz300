@@ -1,0 +1,14 @@
+<article class="product-card premium-product-card">
+  <a class="product-media" href="{{url_for('main.product',product_id=p.id)}}">
+    {% if p.image %}<img loading="lazy" src="{{url_for('main.image',filename=p.image)}}" alt="{{p.name}}">{% else %}<div class="placeholder">{{site_name}}</div>{% endif %}
+    {% if discount_for(p)>0 %}<span class="discount-badge">{{discount_for(p)}}٪ تخفیف</span>{% endif %}
+    <span class="quick-view">مشاهده</span>
+  </a>
+  <div class="product-body">
+    <div class="product-meta-top"><span>{{p.category.name if p.category else 'محصول'}}</span>{% if p.brand %}<span>{{p.brand.name}}</span>{% endif %}</div>
+    <a href="{{url_for('main.product',product_id=p.id)}}"><h3>{{p.name}}</h3></a>
+    <div class="rating-line"><span>★ ۴.۸ <small>(۱۲)</small></span>{% if p.stock>0 %}<small class="stock-ok">موجود</small>{% else %}<small class="danger">ناموجود</small>{% endif %}</div>
+    <div class="price-line"><div><strong>{{"{:,}".format(p.price)}}</strong> <small>{{site_currency}}</small></div>{% if p.compare_price>p.price %}<del>{{"{:,}".format(p.compare_price)}}</del>{% endif %}</div>
+    <div class="actions"><form method="post" action="{{url_for('main.cart_add',product_id=p.id)}}"><input type="hidden" name="_csrf" value="{{csrf_token()}}"><button class="cart-mini" {% if p.stock<=0 %}disabled{% endif %}><svg><use href="#i-cart"/></svg> افزودن به سبد</button></form><a class="product-view-btn" href="{{url_for('main.product',product_id=p.id)}}" aria-label="دیدن محصول">دیدن محصول <span aria-hidden="true">←</span></a></div>
+  </div>
+</article>

@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}تیکت #{{ticket.id}} | {{site_name}}{% endblock %}
+{% block content %}
+<div class="ticket-page professional-ticket-page">
+<section class="ticket-header card"><a class="back-link" href="{{url_for('main.support')}}">← بازگشت</a><div class="ticket-title-wrap"><span class="eyebrow">درخواست پشتیبانی</span><h1>#{{ticket.id}} — {{ticket.subject}}</h1><small>ایجاد شده در {{ticket.created_at.strftime('%Y/%m/%d %H:%M')}}</small></div><span class="ticket-status {{ticket.status}}">{% if ticket.status=='answered' %}پاسخ داده شد{% elif ticket.status=='closed' %}بسته{% else %}باز{% endif %}</span></section>
+<section class="card conversation"><div class="conversation-head"><div><b>گفت‌وگو با پشتیبانی</b><span>{{ticket.messages|length}} پیام</span></div><span>تیکت #{{ticket.id}}</span></div>
+{% for m in ticket.messages %}<div class="message {% if m.sender.is_admin %}admin-message{% else %}user-message{% endif %}"><div class="message-meta"><strong>{% if m.sender.is_admin %}پشتیبانی {{site_name}}{% else %}شما{% endif %}</strong><small>{{m.created_at.strftime('%Y/%m/%d · %H:%M')}}</small></div><p>{{m.message}}</p></div>{% endfor %}
+<form method="post" class="reply-form"><input type="hidden" name="_csrf" value="{{csrf_token()}}"><label class="field"><span>پیام جدید</span><textarea name="message" maxlength="5000" required placeholder="پاسخ یا توضیح جدید خود را بنویسید..."></textarea></label><div class="reply-footer"><small>لطفاً اطلاعات حساس مانند رمز عبور را ارسال نکنید.</small><button class="btn" type="submit">ارسال پیام <b>←</b></button></div></form>
+</section></div>
+{% endblock %}

@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}ویرایش اسلایدر | {{site_name}}{% endblock %}
+{% block content %}
+<div class="admin-page-head">
+  <div><span class="eyebrow">مدیریت صفحه اصلی</span><h1>ویرایش اسلایدر</h1><p class="muted">متن، رنگ‌ها، تصویر و لینک اسلایدر را از همین‌جا تغییر دهید.</p></div>
+  <a class="outline" href="{{url_for('main.admin_banners')}}">بازگشت به اسلایدرها</a>
+</div>
+<div class="banner-editor-grid">
+  <form class="card professional-form" method="post" enctype="multipart/form-data">
+    <input type="hidden" name="_csrf" value="{{csrf_token()}}">
+    <div class="form-section-title"><span>۱</span><div><b>محتوای اسلایدر</b><small>متن‌هایی که کاربر در صفحه اصلی می‌بیند</small></div></div>
+    <div class="form-grid">
+      <label class="field"><span>عنوان اصلی</span><input id="title" name="title" maxlength="180" value="{{banner.title}}" required placeholder="مثلاً خرید ساده، سریع و حرفه‌ای"></label>
+      <label class="field"><span>متن کوتاه</span><input id="subtitle" name="subtitle" maxlength="255" value="{{banner.subtitle}}" placeholder="یک توضیح کوتاه و جذاب"></label>
+      <label class="field full"><span>لینک دکمه</span><input name="link" maxlength="500" value="{{banner.link}}" placeholder="/shop یا https://..."></label>
+      <label class="field"><span>نوع نمایش</span><select name="kind"><option value="slider" {% if banner.kind=='slider' %}selected{% endif %}>اسلایدر اصلی</option><option value="banner" {% if banner.kind=='banner' %}selected{% endif %}>بنر تبلیغاتی</option></select></label>
+      <label class="field"><span>ترتیب نمایش</span><input name="sort_order" type="number" value="{{banner.sort_order}}" min="0"></label>
+    </div>
+
+    <div class="form-section-title"><span>۲</span><div><b>تصویر پس‌زمینه</b><small>در صورت انتخاب، تصویر جدید جایگزین تصویر قبلی می‌شود.</small></div></div>
+    {% if banner.image %}<div class="current-image"><img src="{{url_for('main.image',filename=banner.image)}}" alt="تصویر فعلی"><span>تصویر فعلی</span></div>{% endif %}
+    <label class="upload-box"><input type="file" name="image" accept="image/jpeg,image/png,image/webp,image/gif"><strong>＋ انتخاب تصویر جدید</strong><small>JPG، PNG، WEBP یا GIF · حداکثر ۸MB</small></label>
+
+    <div class="form-section-title"><span>۳</span><div><b>رنگ و ظاهر</b><small>رنگ‌ها را انتخاب کنید؛ تغییرات بلافاصله در پیش‌نمایش دیده می‌شود.</small></div></div>
+    <div class="color-controls">
+      <label class="color-field"><span>رنگ زمینه</span><div><input id="bg" name="bg" type="color" value="{{visual.bg}}"><code id="bg-value">{{visual.bg}}</code></div></label>
+      <label class="color-field"><span>رنگ متن</span><div><input id="text_color" name="text_color" type="color" value="{{visual.text}}"><code id="text-value">{{visual.text}}</code></div></label>
+      <label class="color-field"><span>رنگ دکمه</span><div><input id="button_color" name="button_color" type="color" value="{{visual.button}}"><code id="button-value">{{visual.button}}</code></div></label>
+      <label class="color-field"><span>رنگ متن دکمه</span><div><input id="button_text" name="button_text" type="color" value="{{visual.button_text}}"><code id="button-text-value">{{visual.button_text}}</code></div></label>
+    </div>
+
+    <label class="toggle-row"><input name="is_active" type="checkbox" {% if banner.is_active %}checked{% endif %}><span><b>اسلایدر فعال باشد</b><small>اگر خاموش باشد در صفحه اصلی نمایش داده نمی‌شود.</small></span><i></i></label>
+    <div class="form-actions"><a class="outline" href="{{url_for('main.admin_banners')}}">انصراف</a><button class="btn" type="submit">ذخیره تغییرات</button></div>
+  </form>
+
+  <aside class="card live-preview-card">
+    <div class="preview-head"><div><span class="eyebrow">پیش‌نمایش زنده</span><h2>ظاهر اسلایدر</h2></div><span class="preview-dot">LIVE</span></div>
+    <div id="slider-preview" class="slider-live-preview" style="--preview-bg:{{visual.bg}};--preview-text:{{visual.text}};--preview-button:{{visual.button}};--preview-button-text:{{visual.button_text}};{% if banner.image %}background-image:linear-gradient(90deg,rgba(0,0,0,.55),rgba(0,0,0,.08)),url('{{url_for('main.image',filename=banner.image)}}'){% endif %}">
+      <div><span>پیشنهاد ویژه {{site_name}}</span><h3 id="preview-title">{{banner.title or 'عنوان اسلایدر'}}</h3><p id="preview-subtitle">{{banner.subtitle or 'متن کوتاه اسلایدر اینجا نمایش داده می‌شود.'}}</p><b>مشاهده ←</b></div>
+    </div>
+    <div class="preview-tip">💡 برای خوانایی بهتر متن روی تصویر، رنگ زمینه و متن را با کنتراست مناسب انتخاب کنید.</div>
+  </aside>
+</div>
+<script>
+(function(){
+  const map={bg:['bg','bg-value'],text_color:['text_color','text-value'],button_color:['button_color','button-value'],button_text:['button_text','button-text-value']};
+  const preview=document.getElementById('slider-preview');
+  Object.keys(map).forEach(function(k){const input=document.getElementById(map[k][0]),out=document.getElementById(map[k][1]); input.addEventListener('input',function(){out.textContent=input.value; preview.style.setProperty('--preview-'+(k==='text_color'?'text':k==='button_color'?'button':k==='button_text'?'button-text':'bg'),input.value);});});
+  document.getElementById('title').addEventListener('input',e=>document.getElementById('preview-title').textContent=e.target.value||'عنوان اسلایدر');
+  document.getElementById('subtitle').addEventListener('input',e=>document.getElementById('preview-subtitle').textContent=e.target.value||'متن کوتاه اسلایدر اینجا نمایش داده می‌شود.');
+})();
+</script>
+{% endblock %}

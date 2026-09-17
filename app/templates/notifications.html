@@ -1,0 +1,4 @@
+{% extends "base.html" %}{% block title %}اعلان‌ها{% endblock %}{% block content %}
+<div class="section-head"><h1>اعلان‌ها</h1>{% if notifications %}<form method="post" action="{{url_for('main.notifications_read_all')}}"><input type="hidden" name="_csrf" value="{{csrf_token()}}"><button class="btn small">خواندن همه</button></form>{% endif %}</div>
+<div class="notifications">{% for n in notifications %}<article class="notification {% if not n.is_read %}unread{% endif %}"><div><h3>{{n.title}}</h3><p>{{n.message}}</p><small>{{n.created_at.strftime('%Y/%m/%d %H:%M') if n.created_at else ''}}</small></div>{% if not n.is_read %}<form method="post" action="{{url_for('main.notification_read',notification_id=n.id)}}"><input type="hidden" name="_csrf" value="{{csrf_token()}}"><button class="btn small">خواندم</button></form>{% endif %}</article>{% else %}<div class="card empty">اعلانی برای نمایش وجود ندارد.</div>{% endfor %}</div>
+{% endblock %}

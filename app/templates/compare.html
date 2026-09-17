@@ -1,0 +1,1 @@
+{% extends "base.html" %}{% block content %}<h1>مقایسه محصولات</h1><div class="compare">{% for p in products %}<div class="card"><h3>{{p.name}}</h3><p>{{p.description}}</p><b>{{"{:,}".format(p.price)}} تومان</b><p>موجودی: {{p.stock}}</p></div>{% else %}<p>محصولی برای مقایسه انتخاب نشده است.</p>{% endfor %}</div>{% endblock %}

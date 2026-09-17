@@ -1,0 +1,6 @@
+{% extends "base.html" %}{% block title %}تیکت‌های پشتیبانی{% endblock %}{% block content %}
+<div class="section-head"><h1>تیکت‌های پشتیبانی</h1><span class="muted">مدیریت پیام کاربران</span></div>
+<div class="admin-tickets card"><div class="ticket-list">
+{% for t in tickets %}<div class="admin-ticket"><a href="{{url_for('main.support_ticket',ticket_id=t.id)}}"><strong>#{{t.id}} — {{t.subject}}</strong><span>{{t.user.full_name or t.user.username}} · {{t.user.phone}}</span><small>{{t.updated_at.strftime('%Y/%m/%d %H:%M')}}</small></a><form method="post" action="{{url_for('main.admin_support_status',ticket_id=t.id)}}"><input type="hidden" name="_csrf" value="{{csrf_token()}}"><select name="status" onchange="this.form.submit()"><option value="open" {% if t.status=='open' %}selected{% endif %}>باز</option><option value="answered" {% if t.status=='answered' %}selected{% endif %}>پاسخ داده شد</option><option value="closed" {% if t.status=='closed' %}selected{% endif %}>بسته</option></select></form></div>{% else %}<div class="empty">تیکتی وجود ندارد.</div>{% endfor %}
+</div></div>
+{% endblock %}
